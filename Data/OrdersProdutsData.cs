@@ -4,27 +4,27 @@ namespace Bangazon_BE.Data;
 
 public class OrderItemData
 {
-	public static List<OrderItems> OrderItems = new List<OrderItems>
+	public static List<OrdersProduts> OrdersProduts = new List<OrdersProduts>
 	{
-		new OrderItems
-		{
+		new OrdersProduts
+        {
 			OrderId = 1,
 			ProductId = 2,
 		},
-        new OrderItems
+        new OrdersProduts
         {
             OrderId = 1,
             ProductId = 8,
         },
-        new OrderItems
+        new OrdersProduts
         {
             OrderId = 1,
             ProductId = 12,
         },
-        new OrderItems
+        new OrdersProduts
         {
             OrderId = 1,
-            ProductId = 29,
+            ProductId = 20,
         }
     };
 }

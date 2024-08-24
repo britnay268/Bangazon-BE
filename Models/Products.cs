@@ -13,5 +13,6 @@ public class Products
 	public Users User { get; set; }
 	public int CategoryId { get; set; }
 	public Categories Category { get; set; }
+	public List<Orders> orders { get; set; }
 }
 

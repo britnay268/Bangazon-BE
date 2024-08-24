@@ -9,6 +9,7 @@ public class Users
     public string Email { get; set; }
     public string Uid { get; set; }
 	public bool Seller { get; set; }
-	public ICollection<Products> Products { get; set; }
+	public List<Products> Products { get; set; }
+	public List<Orders> Order { get; set; }
 }
 

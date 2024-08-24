@@ -162,9 +162,6 @@ namespace Bangazon_BE.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("OrdersId")
-                        .HasColumnType("integer");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
@@ -177,8 +174,6 @@ namespace Bangazon_BE.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("OrdersId");
 
                     b.HasIndex("UserId");
 
@@ -500,6 +495,21 @@ namespace Bangazon_BE.Migrations
                         });
                 });
 
+            modelBuilder.Entity("OrdersProducts", b =>
+                {
+                    b.Property<int>("ProductsId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ordersId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ProductsId", "ordersId");
+
+                    b.HasIndex("ordersId");
+
+                    b.ToTable("OrdersProducts");
+                });
+
             modelBuilder.Entity("Bangazon_BE.Models.Orders", b =>
                 {
                     b.HasOne("Bangazon_BE.Models.PaymentTypes", "PaymentType")
@@ -507,7 +517,7 @@ namespace Bangazon_BE.Migrations
                         .HasForeignKey("PaymentTypeId");
 
                     b.HasOne("Bangazon_BE.Models.Users", "User")
-                        .WithMany()
+                        .WithMany("Order")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -525,10 +535,6 @@ namespace Bangazon_BE.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Bangazon_BE.Models.Orders", null)
-                        .WithMany("products")
-                        .HasForeignKey("OrdersId");
-
                     b.HasOne("Bangazon_BE.Models.Users", "User")
                         .WithMany("Products")
                         .HasForeignKey("UserId")
@@ -540,18 +546,30 @@ namespace Bangazon_BE.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("OrdersProducts", b =>
+                {
+                    b.HasOne("Bangazon_BE.Models.Products", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bangazon_BE.Models.Orders", null)
+                        .WithMany()
+                        .HasForeignKey("ordersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Bangazon_BE.Models.Categories", b =>
                 {
                     b.Navigation("Products");
                 });
 
-            modelBuilder.Entity("Bangazon_BE.Models.Orders", b =>
-                {
-                    b.Navigation("products");
-                });
-
             modelBuilder.Entity("Bangazon_BE.Models.Users", b =>
                 {
+                    b.Navigation("Order");
+
                     b.Navigation("Products");
                 });
 #pragma warning restore 612, 618

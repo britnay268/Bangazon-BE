@@ -13,5 +13,9 @@ public class Orders
     public int UserId { get; set; }
     public Users User { get; set; }
     public List<Products> Products { get; set; }
+
+    public decimal? TotalPrice => (
+        Products.Sum(p => p.Price) 
+    );
 }
 

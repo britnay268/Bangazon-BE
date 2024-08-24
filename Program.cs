@@ -12,6 +12,9 @@ builder.Services.AddSwaggerGen();
 // allows passing datetimes without time zone data 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
+// allows our api endpoints to access the database through Entity Framework Core
+builder.Services.AddNpgsql<Bangazon_BEDbContext>(builder.Configuration["Bangazon_BEConnectionString"]);
+
 // Set the JSON serializer options
 builder.Services.Configure<JsonOptions>(options =>
 {

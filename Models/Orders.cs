@@ -15,7 +15,7 @@ public class Orders
     public List<Products> Products { get; set; }
 
     public decimal? TotalPrice => (
-        Products.Sum(p => p.Price) 
+       Products != null ? Products.Sum(p => p.Price) : null
     );
 }
 

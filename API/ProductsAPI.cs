@@ -1,6 +1,6 @@
 ﻿using Bangazon_BE.Models;
-using Bangazon_BE.Data;
 using Microsoft.EntityFrameworkCore;
+
 namespace Bangazon_BE.API;
 
 public class ProductsAPI
@@ -34,6 +34,23 @@ public class ProductsAPI
             {
                 return Results.NotFound("This product does not exist");
             }
+        });
+
+        app.MapGet("/api/product/search", (Bangazon_BEDbContext db, string searchInput) =>
+        {
+            searchInput = searchInput.ToLower();
+
+            var searchResults = db.Products
+        .Where(p => p.Name.ToLower().StartsWith(searchInput) ||
+                    p.Name.ToLower().Contains(searchInput)).ToList();
+
+            // If search results is empty based on the searchInput, it will throw a not found error
+            if (!searchResults.Any())
+            {
+                return Results.NotFound("No products found matching your search term.");
+            }
+
+            return Results.Ok(searchResults);
         });
     }
 }

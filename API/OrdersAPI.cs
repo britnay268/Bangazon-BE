@@ -11,11 +11,13 @@ public class OrdersAPI
 {
     public static void Map(WebApplication app)
     {
+        // Get all Orders
         app.MapGet("/api/orders", (Bangazon_BEDbContext db) =>
         {
             return db.Orders.Include(o => o.User).Include(o => o.Products);
         });
 
+        // Get Order Details
         app.MapGet("/api/order/{orderId}", (Bangazon_BEDbContext db, int orderId) =>
         {
             try
@@ -28,6 +30,7 @@ public class OrdersAPI
             }
         });
 
+        // Create an Order
         app.MapPost("/api/order", (Bangazon_BEDbContext db, Orders order) =>
         {
             db.Orders.Add(order);
@@ -74,6 +77,29 @@ public class OrdersAPI
             db.SaveChanges();
 
             return Results.NoContent();
+        });
+
+        // Delete Product from an Order
+        app.MapDelete("/api/orddr/{orderid}/product/{productId}", (Bangazon_BEDbContext db, int orderId, int productId) =>
+        {
+            Orders order = db.Orders.Include(o => o.Products).FirstOrDefault(o => o.Id == orderId);
+
+            if (order == null)
+            {
+                return Results.NotFound("Order not found.");
+            }
+
+            var productToDelete = order.Products.FirstOrDefault(p => p.Id == productId);
+
+            if (productToDelete == null)
+            {
+                return Results.NotFound("Product not found in the order.");
+            }
+
+            order.Products.Remove(productToDelete);
+            db.SaveChanges();
+
+            return Results.Ok($"Product {productId} has been deleted");
         });
     }
 }

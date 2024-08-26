@@ -16,7 +16,7 @@ public class UsersAPI
 		{
 			try
 			{
-				return Results.Ok(db.Orders.Include(order => order.User).Include(order => order.Products).Single(user => user.Id == userId));
+				return Results.Ok(db.Orders.Include(order => order.User).Include(order => order.Products).FirstOrDefault(order => order.UserId == userId));
 			}
 			catch (InvalidOperationException)
 			{

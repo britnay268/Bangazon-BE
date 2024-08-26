@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Bangazon_BE.Models;
+using Bangazon_BE.DTOs;
+using Microsoft.EntityFrameworkCore.Migrations;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Builder;
 
 namespace Bangazon_BE.API;
 
@@ -30,6 +33,27 @@ public class OrdersAPI
             db.Orders.Add(order);
             db.SaveChanges();
             return Results.Created($"/api/order/{order.Id}", order);
+        });
+
+        // Add Product to an Order
+        app.MapPost("/api/order/add/{productId}", (Bangazon_BEDbContext db, int productId, int userId) =>
+        {
+            var cart = db.Orders.Include(o => o.Products).FirstOrDefault(o => o.UserId == userId && o.Completed == false);
+
+            if (cart == null)
+            {
+                cart = new Orders { UserId = userId, Completed = false };
+                cart.Products = new List<Products>();
+
+                db.Orders.Add(cart);
+            }
+
+            Products product = db.Products.SingleOrDefault(p => p.Id == productId);
+
+            cart.Products.Add(product);
+            db.SaveChanges();
+
+            Results.Ok(cart);
         });
     }
 }

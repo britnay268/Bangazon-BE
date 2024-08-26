@@ -12,6 +12,10 @@ public class Orders
     [Required]
     public int UserId { get; set; }
     public Users User { get; set; }
-    public ICollection<Products> products { get; set; }
+    public List<Products> Products { get; set; }
+
+    public decimal? TotalPrice => (
+       Products != null ? Products.Sum(p => p.Price) : null
+    );
 }
 

@@ -1,6 +1,7 @@
-using System.Reflection;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Json;
+using Bangazon_BE;
+using Bangazon_BE.API;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,9 +49,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/test", () =>
-{
-    return "Test";
-});
+UsersAPI.Map(app);
+ProductsAPI.Map(app);
+OrdersAPI.Map(app);
+PaymentTypeAPI.Map(app);
 
 app.Run();

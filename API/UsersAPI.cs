@@ -27,5 +27,22 @@ public class UsersAPI
 				return Results.BadRequest("Please select a user");
 			}
         });
+
+		app.MapGet("/api/user/{userId}", (Bangazon_BEDbContext db, int userId) =>
+		{
+            try
+            {
+                return Results.Ok(db.Users.Single(user => user.Id == userId));
+            }
+            catch (InvalidOperationException)
+            {
+                return Results.NotFound("This user does not exist");
+            }
+        });
+
+		app.MapGet("/api/sellers/{sellerId}/products", (Bangazon_BEDbContext db, int sellerid) =>
+		{
+			return db.Users.Include(user => user.Products).Single(user => user.Id == sellerid);
+		});
 	}
 }

@@ -52,5 +52,21 @@ public class ProductsAPI
 
             return Results.Ok(searchResults);
         });
+
+        app.MapGet("/api/products/latest", (Bangazon_BEDbContext db) =>
+        {
+            return db.Products.Include(product => product.User).Include(product => product.Category).Select(product => new
+            {
+                product.Id,
+                product.Name,
+                product.Price,
+                product.Description,
+                product.Quantity,
+                product.ImageUrl,
+                product.User,
+                product.Category
+            }).OrderByDescending(product => product.Id)
+              .Take(20);
+        });
     }
 }

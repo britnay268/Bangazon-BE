@@ -11,18 +11,18 @@ public class OrdersAPI
 {
     public static void Map(WebApplication app)
     {
-        // Get all Orders
+        // GET all Orders
         app.MapGet("/api/orders", (Bangazon_BEDbContext db) =>
         {
             return db.Orders.Include(o => o.User).Include(o => o.Products);
         });
 
-        // Get Order Details
+        // GET Order Details
         app.MapGet("/api/order/{orderId}", (Bangazon_BEDbContext db, int orderId) =>
         {
             try
             {
-                return Results.Ok(db.Orders.Single(order => order.Id == orderId));
+                return Results.Ok(db.Orders.Include(o => o.Products).Include(o => o.User).Single(order => order.Id == orderId)); ;
             }
             catch (InvalidOperationException)
             {
@@ -30,7 +30,7 @@ public class OrdersAPI
             }
         });
 
-        // Create an Order
+        // POST Create an Order
         app.MapPost("/api/order", (Bangazon_BEDbContext db, Orders order) =>
         {
             db.Orders.Add(order);
@@ -38,7 +38,7 @@ public class OrdersAPI
             return Results.Created($"/api/order/{order.Id}", order);
         });
 
-        // Add Product to an Order
+        // POST Add Product to an Order
         app.MapPost("/api/order/add/{productId}", (Bangazon_BEDbContext db, int productId, int userId) =>
         {
             var cart = db.Orders.Include(o => o.Products).FirstOrDefault(o => o.UserId == userId && o.Completed == false);
@@ -59,7 +59,7 @@ public class OrdersAPI
             Results.Ok(cart);
         });
 
-        // Update the Order with OrderNum, DatePlaced, PaymentTypeId, and Completion
+        // PUT Update the Order with OrderNum, DatePlaced, PaymentTypeId, and Completion
         app.MapPut("/api/order/{orderId}", (Bangazon_BEDbContext db, int orderId, Orders orderUpdate) =>
         {
             Orders orderToUpdate = db.Orders.Include(o => o.Products).FirstOrDefault(o => o.Id == orderId);
@@ -79,7 +79,7 @@ public class OrdersAPI
             return Results.NoContent();
         });
 
-        // Delete Product from an Order
+        // DELETE Product from an Order
         app.MapDelete("/api/orddr/{orderid}/product/{productId}", (Bangazon_BEDbContext db, int orderId, int productId) =>
         {
             Orders order = db.Orders.Include(o => o.Products).FirstOrDefault(o => o.Id == orderId);

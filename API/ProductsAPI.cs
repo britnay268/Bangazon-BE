@@ -23,7 +23,7 @@ public class ProductsAPI
             }).OrderBy(product => product.Id);
         });
 
-        // GET product details
+        // GET Product details
         app.MapGet("/api/products/{productId}", (Bangazon_BEDbContext db, int productId) =>
         {
             try
@@ -36,6 +36,7 @@ public class ProductsAPI
             }
         });
 
+        // GET product based on what was entered as Search Input
         app.MapGet("/api/product/search", (Bangazon_BEDbContext db, string searchInput) =>
         {
             searchInput = searchInput.ToLower();
@@ -53,6 +54,7 @@ public class ProductsAPI
             return Results.Ok(searchResults);
         });
 
+        // GET the 20 latest products meaning last prooduct entered to the first product that makes the 20th product
         app.MapGet("/api/products/latest", (Bangazon_BEDbContext db) =>
         {
             return db.Products.Include(product => product.User).Include(product => product.Category).Select(product => new

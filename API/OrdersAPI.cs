@@ -55,6 +55,26 @@ public class OrdersAPI
 
             Results.Ok(cart);
         });
+
+        // Update the Order with OrderNum, DatePlaced, PaymentTypeId, and Completion
+        app.MapPut("/api/order/{orderId}", (Bangazon_BEDbContext db, int orderId, Orders orderUpdate) =>
+        {
+            Orders orderToUpdate = db.Orders.Include(o => o.Products).FirstOrDefault(o => o.Id == orderId);
+
+            if (orderToUpdate == null)
+            {
+                return Results.NotFound("The odrder does not exist.");
+            }
+
+            orderToUpdate.Completed = orderUpdate.Completed;
+            orderToUpdate.PaymentTypeId = orderUpdate.PaymentTypeId;
+            orderToUpdate.DatePlaced = orderUpdate.DatePlaced;
+            orderToUpdate.OrderNum = orderUpdate.OrderNum;
+
+            db.SaveChanges();
+
+            return Results.NoContent();
+        });
     }
 }
 

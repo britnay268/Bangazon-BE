@@ -35,7 +35,7 @@ public class UsersAPI
 		{
             try
             {
-                return Results.Ok(db.Users.Single(user => user.Id == userId));
+                return Results.Ok(db.Users.SingleOrDefault(user => user.Id == userId));
             }
             catch (InvalidOperationException)
             {
@@ -55,5 +55,39 @@ public class UsersAPI
 				return Results.NotFound("This user does not exist!");
 			}
 		});
-	}
+
+		// Check User
+		app.MapPost("/checkuser", (Bangazon_BEDbContext db, string uid) =>
+		{
+            try
+            {
+                var user = db.Users.SingleOrDefault(u => u.Uid == uid);
+
+                if (user != null)
+                {
+                    return Results.Ok(new { User = user, Message = "User found successfully" });
+                }
+                else
+                {
+                    return Results.NotFound("User not found");
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                return Results.NotFound("This user does not exist!");
+            }
+			catch (ArgumentNullException)
+			{
+				return Results.NotFound();
+			}
+        });
+
+        // Create User
+        app.MapPost("/api/user", (Bangazon_BEDbContext db, Users user) =>
+        {
+            db.Users.Add(user);
+            db.SaveChanges();
+            return Results.Created($"/api/user/{user.Id}", user);
+        });
+    }
 }

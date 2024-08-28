@@ -37,7 +37,7 @@ public class ProductsAPI
         });
 
         // GET product based on what was entered as Search Input
-        app.MapGet("/api/product/search", (Bangazon_BEDbContext db, string searchInput) =>
+        app.MapPost("/api/product/search", (Bangazon_BEDbContext db, string searchInput) =>
         {
             searchInput = searchInput.ToLower();
 

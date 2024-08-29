@@ -48,7 +48,7 @@ public class UsersAPI
 		{
 			try
 			{
-				return Results.Ok(db.Users.Include(user => user.Products).Single(user => user.Id == sellerid));
+				return Results.Ok(db.Products.Where(p => p.UserId == sellerid).ToList());
 			}
 			catch
 			{

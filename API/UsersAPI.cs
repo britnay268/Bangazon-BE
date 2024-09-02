@@ -18,7 +18,21 @@ public class UsersAPI
 		{
 			try
 			{
-				return Results.Ok(db.Orders.Include(order => order.User).Include(order => order.Products).FirstOrDefault(order => order.UserId == userId));
+				var usersOrders = db.Orders.Include(order => order.User).Include(order => order.Products).FirstOrDefault(order => order.UserId == userId && order.Completed == false);
+
+				if (usersOrders == null)
+				{
+					usersOrders = new Orders {Id = db.Orders.Max(o =>o.Id) + 1, UserId = userId, Completed = false };
+					usersOrders.Products = new List<Products>();
+
+					db.Orders.Add(usersOrders);
+					db.SaveChanges();
+
+                }
+
+                return Results.Ok(usersOrders);
+
+				
 			}
 			catch (InvalidOperationException)
 			{

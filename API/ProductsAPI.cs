@@ -46,12 +46,12 @@ public class ProductsAPI
                     p.Name.ToLower().Contains(searchInput)).ToList();
 
             // If search results is empty based on the searchInput, it will throw a not found error
-            if (!searchResults.Any())
+            if (!string.IsNullOrEmpty(searchInput))
             {
-                return Results.NotFound("No products found matching your search term.");
+                return searchResults;
             }
-
-            return Results.Ok(searchResults);
+            return searchResults;
+            
         });
 
         // GET the 20 latest products meaning last prooduct entered to the first product that makes the 20th product

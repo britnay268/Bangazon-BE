@@ -56,7 +56,7 @@ public class OrdersAPI
             cart.Products.Add(product);
             db.SaveChanges();
 
-            Results.Ok(cart);
+            Results.Ok(product);
         });
 
         // PUT Update the Order with OrderNum, DatePlaced, PaymentTypeId, and Completion

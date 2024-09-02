@@ -18,7 +18,21 @@ public class UsersAPI
 		{
 			try
 			{
-				return Results.Ok(db.Orders.Include(order => order.User).Include(order => order.Products).FirstOrDefault(order => order.UserId == userId));
+				var usersOrders = db.Orders.Include(order => order.User).Include(order => order.Products).FirstOrDefault(order => order.UserId == userId && order.Completed == false);
+
+				if (usersOrders == null)
+				{
+					usersOrders = new Orders {Id = db.Orders.Max(o =>o.Id) + 1, UserId = userId, Completed = false };
+					usersOrders.Products = new List<Products>();
+
+					db.Orders.Add(usersOrders);
+					db.SaveChanges();
+
+                }
+
+                return Results.Ok(usersOrders);
+
+				
 			}
 			catch (InvalidOperationException)
 			{
@@ -35,7 +49,7 @@ public class UsersAPI
 		{
             try
             {
-                return Results.Ok(db.Users.Single(user => user.Id == userId));
+                return Results.Ok(db.Users.SingleOrDefault(user => user.Id == userId));
             }
             catch (InvalidOperationException)
             {
@@ -48,12 +62,46 @@ public class UsersAPI
 		{
 			try
 			{
-				return Results.Ok(db.Users.Include(user => user.Products).Single(user => user.Id == sellerid));
+				return Results.Ok(db.Products.Where(p => p.UserId == sellerid).ToList());
 			}
 			catch
 			{
 				return Results.NotFound("This user does not exist!");
 			}
 		});
-	}
+
+		// Check User
+		app.MapPost("/checkuser", (Bangazon_BEDbContext db, string uid) =>
+		{
+            try
+            {
+                var user = db.Users.SingleOrDefault(u => u.Uid == uid);
+
+                if (user != null)
+                {
+                    return Results.Ok(new { User = user, Message = "User found successfully" });
+                }
+                else
+                {
+                    return Results.NotFound("User not found");
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                return Results.NotFound("This user does not exist!");
+            }
+			catch (ArgumentNullException)
+			{
+				return Results.NotFound();
+			}
+        });
+
+        // Create User
+        app.MapPost("/api/user", (Bangazon_BEDbContext db, Users user) =>
+        {
+            db.Users.Add(user);
+            db.SaveChanges();
+            return Results.Created($"/api/user/{user.Id}", user);
+        });
+    }
 }

@@ -54,7 +54,7 @@ public class ProductsAPI
             
         });
 
-        // GET the 20 latest products meaning last prooduct entered to the first product that makes the 20th product
+        // GET the 10 latest products meaning last prooduct entered to the first product that makes the 20th product
         app.MapGet("/api/products/latest", (Bangazon_BEDbContext db) =>
         {
             return db.Products.Include(product => product.User).Include(product => product.Category).Select(product => new
@@ -68,7 +68,7 @@ public class ProductsAPI
                 product.User,
                 product.Category
             }).OrderByDescending(product => product.Id)
-              .Take(20);
+              .Take(10);
         });
     }
 }

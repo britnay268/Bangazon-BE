@@ -18,19 +18,45 @@ public class UsersAPI
 		{
 			try
 			{
-				var usersOrders = db.Orders.Include(order => order.User).Include(order => order.Products).FirstOrDefault(order => order.UserId == userId && order.Completed == false);
+                // var usersOrders = db.Orders.Include(order => order.User).Include(order => order.Products).FirstOrDefault(order => order.UserId == userId && order.Completed == false);
+
+                var usersOrders = db.Orders
+                    .Select(order => new
+					{
+						Id = order.Id,
+						OrderNum = order.OrderNum,
+						DatePlaced = order.DatePlaced,
+						Completed = order.Completed,
+						UserId = order.UserId,
+						Products = order.Products.Select(product => new
+						{
+							Id = product.Id,
+							Name = product.Name,
+							Price = product.Price,
+							Description = product.Description,
+							Quantity= product.Quantity,
+							ImageUrl = product.ImageUrl,
+							UserId = product.UserId,
+							User = product.User,
+							CategoryId = product.CategoryId,
+							Category = product.Category
+						}),
+						TotalPrice = order.Products.Sum(p => p.Price),
+					}).FirstOrDefault(order => order.UserId == userId && order.Completed == false);
+
 
 				if (usersOrders == null)
 				{
-					usersOrders = new Orders {Id = db.Orders.Max(o =>o.Id) + 1, UserId = userId, Completed = false };
-					usersOrders.Products = new List<Products>();
+                    var newOrder = new Orders { Id = db.Orders.Max(o => o.Id) + 1, UserId = userId, Completed = false };
+					newOrder.Products = new List<Products>();
 
-					db.Orders.Add(usersOrders);
+					db.Orders.Add(newOrder);
 					db.SaveChanges();
 
-                }
+					return Results.Ok(newOrder);
+				}
 
-                return Results.Ok(usersOrders);
+				return Results.Ok(usersOrders);
 
 				
 			}
@@ -62,7 +88,19 @@ public class UsersAPI
 		{
 			try
 			{
-				return Results.Ok(db.Products.Where(p => p.UserId == sellerid).ToList());
+				return Results.Ok(db.Products.Select(product => new
+				{
+                    Id = product.Id,
+                    Name = product.Name,
+                    Price = product.Price,
+                    Description = product.Description,
+                    Quantity = product.Quantity,
+                    ImageUrl = product.ImageUrl,
+                    UserId = product.UserId,
+                    User = product.User,
+                    CategoryId = product.CategoryId,
+                    Category = product.Category
+                }).Where(p => p.UserId == sellerid).ToList());
 			}
 			catch
 			{
@@ -73,6 +111,7 @@ public class UsersAPI
 		// Check User
 		app.MapPost("/checkuser", (Bangazon_BEDbContext db, string uid) =>
 		{
+
             try
             {
                 var user = db.Users.SingleOrDefault(u => u.Uid == uid);
@@ -90,10 +129,11 @@ public class UsersAPI
             {
                 return Results.NotFound("This user does not exist!");
             }
-			catch (ArgumentNullException)
-			{
-				return Results.NotFound();
-			}
+            catch (ArgumentNullException)
+            {
+                return Results.NotFound();
+            }
+
         });
 
         // Create User

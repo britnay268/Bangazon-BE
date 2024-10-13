@@ -115,14 +115,21 @@ public class OrdersAPI
 
             var productToDelete = order.Products.FirstOrDefault(p => p.Id == productId);
 
-            if (productToDelete == null)
+            if (productToDelete != null)
             {
-                return Results.NotFound("Product not found in the order.");
+                if (productToDelete.CartQuantity > 1)
+                {
+                    productToDelete.CartQuantity--;
+                    productToDelete.Quantity++;
+                }
+                else
+                {
+                    order.Products.Remove(productToDelete);
+                    productToDelete.CartQuantity--;
+                    productToDelete.Quantity++;
+                }
             }
 
-            order.Products.Remove(productToDelete);
-            productToDelete.Quantity++;
-            productToDelete.CartQuantity--;
             db.SaveChanges();
 
             return Results.Ok($"Product {productId} has been deleted");

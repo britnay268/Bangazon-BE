@@ -4,6 +4,7 @@ using Bangazon_BE.DTOs;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
 
 namespace Bangazon_BE.API;
 
@@ -22,7 +23,28 @@ public class OrdersAPI
         {
             try
             {
-                return Results.Ok(db.Orders.Include(o => o.Products).Include(o => o.User).Single(order => order.Id == orderId)); ;
+                return Results.Ok(db.Orders
+                    .Select(order => new
+                    {
+                        Id = order.Id,
+                        OrderNum = order.OrderNum,
+                        DatePlaced = order.DatePlaced,
+                        Completed = order.Completed,
+                        UserId = order.UserId,
+                        OrderProducts = order.Products.Select(product => new
+                        {
+                            Id = product.Id,
+                            Name = product.Name,
+                            Price = product.Price,
+                            Description = product.Description,
+                            Quantity = product.Quantity,
+                            ImageUrl = product.ImageUrl,
+                            UserId = product.UserId,
+                            User = product.User,
+                            CategoryId = product.CategoryId,
+                            Category = product.Category
+                        }),
+                    }).Single(order => order.Id == orderId)); ;
             }
             catch (InvalidOperationException)
             {
@@ -54,6 +76,8 @@ public class OrdersAPI
             Products product = db.Products.SingleOrDefault(p => p.Id == productId);
 
             cart.Products.Add(product);
+            product.Quantity--;
+            product.CartQuantity++;
             db.SaveChanges();
 
             Results.Ok(product);
@@ -91,16 +115,24 @@ public class OrdersAPI
 
             var productToDelete = order.Products.FirstOrDefault(p => p.Id == productId);
 
-            if (productToDelete == null)
+            if (productToDelete != null)
             {
-                return Results.NotFound("Product not found in the order.");
+                if (productToDelete.CartQuantity > 1)
+                {
+                    productToDelete.CartQuantity--;
+                    productToDelete.Quantity++;
+                }
+                else
+                {
+                    order.Products.Remove(productToDelete);
+                    productToDelete.CartQuantity--;
+                    productToDelete.Quantity++;
+                }
             }
 
-            order.Products.Remove(productToDelete);
             db.SaveChanges();
 
             return Results.Ok($"Product {productId} has been deleted");
         });
     }
 }
-
